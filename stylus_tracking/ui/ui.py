@@ -17,7 +17,7 @@ labelImage2.grid(row=0, column=1, sticky=tk.E)
 
 
 def show_frame():
-    frame = capture.next_frame()
+    frame = capture.next_frame_with_aruco_label()
     img = Image.fromarray(frame)
     imgtk = ImageTk.PhotoImage(image=img)
     labelImage1.image = imgtk
