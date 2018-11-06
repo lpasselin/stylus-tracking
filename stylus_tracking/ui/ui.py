@@ -1,7 +1,7 @@
 import tkinter as tk
 import numpy as np
 from PIL import Image, ImageTk
-from stylus_tracking.capture import capture
+from stylus_tracking.controller import controller
 
 window = tk.Tk()
 window.bind('<Escape>', lambda e: window.quit())
@@ -15,9 +15,10 @@ labelImage2 = tk.Label(mainFrame, text="Image2")
 labelImage1.grid(row=0, column=0, sticky=tk.W)
 labelImage2.grid(row=0, column=1, sticky=tk.E)
 
+main_controller = controller.Controller()
 
 def show_frame():
-    frame = capture.next_frame_with_aruco_label()
+    frame = main_controller.next_frame()
     img = Image.fromarray(frame)
     imgtk = ImageTk.PhotoImage(image=img)
     labelImage1.image = imgtk
