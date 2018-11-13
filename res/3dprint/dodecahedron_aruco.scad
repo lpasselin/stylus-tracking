@@ -162,7 +162,7 @@ module face_intrude() {
 
 module white_part(data) {
     translate([-(cw*(4+2)+tol)/2, -(cw*(4+2)+tol)/2, -(white_cube_face_height-tol)])
-    cube([cw*(4+2)+tol, cw*(4+2)+tol, white_cube_face_height-tol]); // must contain aruco_borders
+    cube([cw*(4+2), cw*(4+2), white_cube_face_height-tol]); // must contain aruco_borders
 
     linear_extrude(height=aruco_data_height+0.27) offset(delta=-tol) aruco(data, color=0, flat=1);
 }
