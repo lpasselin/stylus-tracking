@@ -3,8 +3,6 @@ import cv2
 from cv2 import aruco
 
 video_capture = cv2.VideoCapture(0)
-
-# TODO class
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_250)
 aruco_parameters = aruco.DetectorParameters_create()
 

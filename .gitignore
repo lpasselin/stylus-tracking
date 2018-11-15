@@ -1,6 +1,9 @@
 
 # Created by https://www.gitignore.io/api/python
 
+# intrinsic camera parameter (unique for every camera)
+stylus_tracking/intrinsic_parameters.npz
+
 # pycharm
 .idea/
 
