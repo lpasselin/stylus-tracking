@@ -7,11 +7,15 @@ class VideoCapture:
 
     ARUCO_DICT = aruco.Dictionary_get(aruco.DICT_4X4_250)
     ARUCO_PARAMETERS = aruco.DetectorParameters_create()
+    WIDTH = 600
+    HEIGHT = 1200
 
     def __init__(self, video_source=0):
         self.video_capture = cv2.VideoCapture(video_source)
         if not self.video_capture.isOpened():
             raise ValueError("Unable to open video source {}.".format(video_source))
+        self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.WIDTH)
+        self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.HEIGHT)
         self.width = self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
         self.height = self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
@@ -21,9 +25,10 @@ class VideoCapture:
 
     def get_next_frame(self):
         if self.video_capture.isOpened():
-            ret, img_color = self.video_capture.read()
+            ret, image = self.video_capture.read()
             if ret:
-                return ret, img_color
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                return ret, image
             else:
                 return ret, None
 
