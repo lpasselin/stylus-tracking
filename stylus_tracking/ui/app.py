@@ -1,7 +1,9 @@
 import tkinter as tk
 
+import cv2
 from PIL import ImageTk, Image
 
+from stylus_tracking.capture.video_capture import VideoCapture
 from stylus_tracking.controller.controller import Controller
 
 
@@ -17,22 +19,31 @@ class App:
 
         self.controller = controller
 
-        self.canvas = tk.Canvas(window, width=self.controller.video_capture.width,
-                                height=self.controller.video_capture.height)
-        self.canvas.pack()
+        self.camera_canvas = tk.Canvas(window, width=VideoCapture.WIDTH, height=VideoCapture.HEIGHT)
+        self.camera_canvas.pack(anchor=tk.W)
 
-        self.camera_image = None
+        # self.paper_canvas = tk.Canvas(window, width=self.controller.video_capture.WIDTH,
+        #                               height=self.controller.video_capture.HEIGHT)
+        # self.paper_canvas.pack(anchor=tk.E)
 
-        self.update()
+        self.calibrate_intrinsic_button = tk.Button(
+            window, text="Calibrate intrinsic", command=self.controller.start_intrinsic_calibration)
+        self.calibrate_intrinsic_button.pack()
+
+        self.calibrate_intrinsic_button = tk.Button(
+            window, text="Calculate extrinsic from intrinsic parameters", command=self.controller.calculate_extrinsic)
+        self.calibrate_intrinsic_button.pack()
+
+        self.current_image = None
+
+        self.__update()
 
         self.window.mainloop()
 
-    def update(self):
-        ret, img = self.controller.video_capture.get_next_frame()
+    def __update(self):
         self.controller.next_frame()
+        resized_image = cv2.resize(self.controller.model.current_frame, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+        self.current_image = ImageTk.PhotoImage(image=Image.fromarray(resized_image))
+        self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
 
-        if ret:
-            self.camera_image = ImageTk.PhotoImage(image=Image.fromarray(img))
-            self.canvas.create_image(0, 0, image=self.camera_image, anchor=tk.NW)
-
-        self.window.after(self.DELAY, self.update)
+        self.window.after(self.DELAY, self.__update)

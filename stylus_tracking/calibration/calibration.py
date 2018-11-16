@@ -1,11 +1,23 @@
-import numpy as np
-from stylus_tracking.capture import capture
-import cv2
 import time
+from enum import Enum, auto
+
+import cv2
+import numpy as np
+from cv2 import aruco
 
 
-class Calibration():
+class State(Enum):
+    RAW = auto()
+    CALIBRATING_INTRINSIC = auto()
+    CALIBRATED_INTRINSIC = auto()
+    CALIBRATING_EXTRINSIC = auto()
+    CALIBRATED = auto()
+
+
+class Calibration:
     INTRINSIC_PARAMETERS_FILENAME = "/myapp/stylus_tracking/intrinsic_parameters.npz"
+    ARUCO_DICT = aruco.Dictionary_get(aruco.DICT_4X4_250)
+    ARUCO_PARAMETERS = aruco.DetectorParameters_create()
 
     CORNERS_IDS = (100, 101, 102, 103)
 
@@ -21,8 +33,23 @@ class Calibration():
         self.tvecs = None
         self.intrinsic_parameters = None
         self.try_load_intrinsic()
+        self.state = State.RAW
 
-    def calculate_extrinsic(self, corners, ids):
+        self.criteria = None
+        self.objp = None
+        self.objpoints = None
+        self.imgpoints = None
+        self.valid_frames = None
+
+    def try_load_intrinsic(self) -> bool:
+        try:
+            self.intrinsic_parameters = np.load(self.INTRINSIC_PARAMETERS_FILENAME)['intrinsic_parameters']
+        except IOError:
+            return False
+        return True
+
+    def calculate_extrinsic(self, frame) -> bool:
+        _, corners, ids = self.get_frame_with_aruco_label(frame)
         if np.any(ids) and np.all(np.in1d(self.CORNERS_IDS, ids)):
             image_points = np.zeros((4, 2))
             for id, corner in zip(ids, corners):
@@ -35,45 +62,53 @@ class Calibration():
             return True
         return False
 
-    def try_load_intrinsic(self) -> bool:
-        try:
-            self.intrinsic_parameters = np.load(self.INTRINSIC_PARAMETERS_FILENAME)['intrinsic_parameters']
-        except IOError:
-            return False
-        return True
+    def calculate_intrinsic(self, frame) -> None:
+        if self.valid_frames < 10:
+            time.sleep(1)
+            print("Show checkerboard for intrinsic calibration: %s/10" % self.valid_frames)
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+            ret, corners = cv2.findChessboardCorners(frame, (10, 7), None)  # Checkerboard 11x8 (23mmx23mm) each
+            if ret:
+                self.valid_frames += 1
+                corners2 = cv2.cornerSubPix(frame, corners, (11, 11), (-1, -1), self.criteria)
+                self.objpoints.append(self.objp)
+                self.imgpoints.append(corners2)
+        else:
+            ret, cameraMatrix, distCoef, rvecs, tvecs = cv2.calibrateCamera(
+                self.objpoints, self.imgpoints, frame.shape[::-1], None, None)
+            self.intrinsic_parameters = {
+                'cameraMatrix': cameraMatrix,
+                'distCoef': distCoef,
+                # 'rvecs': self.rvecs, 'tvecs': self.tvecs,
+            }
+            self.save_intrinsic()
 
-    def calculate_intrinsic(self) -> None:
+    def start_intrinsic_calibration(self) -> None:
         # Idea: use drawing area aruco corners for intrinsic calibration?
         # termination criteria
         # TODO find optimal criteria for our use case
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        self.criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-        objp = np.zeros((10 * 7, 3), np.float32)
-        objp[:, :2] = np.mgrid[0:10, 0:7].T.reshape(-1, 2)
+        self.objp = np.zeros((10 * 7, 3), np.float32)
+        self.objp[:, :2] = np.mgrid[0:10, 0:7].T.reshape(-1, 2)
+        self.objpoints = []  # 3d point in real world space
+        self.imgpoints = []  # 2d points in image plane.
+        self.valid_frames = 0
 
-        objpoints = []  # 3d point in real world space
-        imgpoints = []  # 2d points in image plane.
-        valid_frames = 0
-        while valid_frames < 10:
-            time.sleep(0.5)
-            print("Show checkerboard for intrinsic calibration: %s/10" % valid_frames)
-            frame = capture.next_frame()
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            ret, corners = cv2.findChessboardCorners(frame, (10, 7), None)  # Checkerboard 11x8 (23mmx23mm) each
-            if ret:
-                valid_frames += 1
-                corners2 = cv2.cornerSubPix(frame, corners, (11, 11), (-1, -1), criteria)
-                objpoints.append(objp)
-                imgpoints.append(corners2)
-
-        ret, cameraMatrix, distCoef, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, frame.shape[::-1], None,
-                                                                        None)
-        self.intrinsic_parameters = {
-            'cameraMatrix': cameraMatrix,
-            'distCoef': distCoef,
-            # 'rvecs': self.rvecs, 'tvecs': self.tvecs,
-        }
-        self.save_intrinsic()
-
-    def save_intrinsic(self):
+    def save_intrinsic(self) -> None:
         np.savez(self.INTRINSIC_PARAMETERS_FILENAME, intrinsic_parameters=self.intrinsic_parameters)
+
+    def get_frame_with_aruco_label(self, image):
+        image_grey = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+        # Easily print aruco markers here: http://chev.me/arucogen/
+        corners, ids, rejected_img_points = aruco.detectMarkers(image_grey,
+                                                                self.ARUCO_DICT, parameters=self.ARUCO_PARAMETERS)
+
+        if np.any(ids):
+            print(ids)
+        if np.any(corners):
+            print(corners)
+
+        img_color_labeled = aruco.drawDetectedMarkers(image, corners)
+        return img_color_labeled, corners, ids
