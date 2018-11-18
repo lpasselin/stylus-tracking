@@ -78,9 +78,9 @@ class Calibration:
                 corners2 = cv2.cornerSubPix(frame, corners, (11, 11), (-1, -1), self.criteria)
                 self.objpoints.append(self.objp)
                 self.imgpoints.append(corners2)
-        else:
-            ret, cameraMatrix, distCoef, rvecs, tvecs = cv2.calibrateCamera(
-                self.objpoints, self.imgpoints, frame.shape[::-1], None, None)
+
+        if self.valid_frames >= 10:
+            ret, cameraMatrix, distCoef, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, frame.shape[::-1], None, None)
             self.intrinsic_parameters = {
                 'cameraMatrix': cameraMatrix,
                 'distCoef': distCoef,
