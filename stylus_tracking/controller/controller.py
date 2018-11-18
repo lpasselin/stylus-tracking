@@ -1,3 +1,5 @@
+from logging import Logger
+
 from stylus_tracking.calibration import calibration
 from stylus_tracking.calibration.calibration import State
 from stylus_tracking.capture.video_capture import VideoCapture
@@ -6,9 +8,10 @@ from stylus_tracking.controller.model import AppModel
 
 class Controller:
 
-    def __init__(self, video_source=0):
+    def __init__(self, logger: Logger, video_source=0):
+        self.logger = logger
         self.video_capture = VideoCapture(video_source)
-        self.calibration = calibration.Calibration()
+        self.calibration = calibration.Calibration(self.logger.getChild("Calibration"))
         self.state = State.RAW
 
         self.model = AppModel()

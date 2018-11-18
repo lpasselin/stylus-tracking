@@ -1,5 +1,6 @@
 import time
 from enum import Enum, auto
+from logging import Logger
 
 import cv2
 import numpy as np
@@ -28,12 +29,13 @@ class Calibration:
     OBJECT_POINTS[2] = [101.45, 133.2, 0]
     OBJECT_POINTS[3] = [-101.45, 133.2, 0]
 
-    def __init__(self):
+    def __init__(self, logger: Logger):
         self.rvecs = None
         self.tvecs = None
         self.intrinsic_parameters = None
         self.try_load_intrinsic()
         self.state = State.RAW
+        self.logger = logger
 
         self.criteria = None
         self.objp = None
@@ -49,6 +51,7 @@ class Calibration:
         return True
 
     def calculate_extrinsic(self, frame) -> bool:
+        self.logger.info("Starting EXTRINSIC calibration.")
         _, corners, ids = self.get_frame_with_aruco_label(frame)
         if np.any(ids) and np.all(np.in1d(self.CORNERS_IDS, ids)):
             image_points = np.zeros((4, 2))
@@ -59,13 +62,15 @@ class Calibration:
             _, self.rvecs, self.tvecs = cv2.solvePnP(self.OBJECT_POINTS, image_points,
                                                      self.intrinsic_parameters['cameraMatrix'],
                                                      self.intrinsic_parameters['distCoef'])
+            self.logger.info("Extrinsic calibration calculated.")
             return True
+        self.logger.error("Extrinsic calibration could not be completed.")
         return False
 
     def calculate_intrinsic(self, frame) -> None:
         if self.valid_frames < 10:
             time.sleep(1)
-            print("Show checkerboard for intrinsic calibration: %s/10" % self.valid_frames)
+            self.logger.info("Show checkerboard for intrinsic calibration: %s/10." % self.valid_frames)
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             ret, corners = cv2.findChessboardCorners(frame, (10, 7), None)  # Checkerboard 11x8 (23mmx23mm) each
             if ret:
@@ -82,6 +87,7 @@ class Calibration:
                 # 'rvecs': self.rvecs, 'tvecs': self.tvecs,
             }
             self.save_intrinsic()
+            self.logger.info("Intrinsic calibration saved.")
 
     def start_intrinsic_calibration(self) -> None:
         # Idea: use drawing area aruco corners for intrinsic calibration?
@@ -94,6 +100,7 @@ class Calibration:
         self.objpoints = []  # 3d point in real world space
         self.imgpoints = []  # 2d points in image plane.
         self.valid_frames = 0
+        self.logger.info("Starting INTRINSIC calibration.")
 
     def save_intrinsic(self) -> None:
         np.savez(self.INTRINSIC_PARAMETERS_FILENAME, intrinsic_parameters=self.intrinsic_parameters)

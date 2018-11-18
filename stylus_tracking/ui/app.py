@@ -10,7 +10,7 @@ from stylus_tracking.controller.controller import Controller
 class App:
     DELAY = 10
 
-    def __init__(self, window: tk.Tk, window_title: str, controller: Controller):
+    def __init__(self, window: tk.Tk, window_title: str, controller: Controller, logger):
         self.window = window
         self.window.title(window_title)
 
@@ -18,6 +18,8 @@ class App:
         self.window.config(background="#0F0F0F")
 
         self.controller = controller
+
+        self.logger = logger
 
         self.camera_canvas = tk.Canvas(window, width=VideoCapture.WIDTH, height=VideoCapture.HEIGHT)
         self.camera_canvas.pack(anchor=tk.W)
