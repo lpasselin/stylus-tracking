@@ -15,7 +15,7 @@ logger.addHandler(console_handler)
 
 logger.setLevel(logging.INFO)
 
-log_directory = "logs"
+log_directory = os.path.join(os.path.dirname(__file__), "logs")
 
 try:
     if not os.path.exists(log_directory):
