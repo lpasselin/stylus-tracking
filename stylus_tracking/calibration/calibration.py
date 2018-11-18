@@ -42,6 +42,7 @@ class Calibration:
         self.objpoints = None
         self.imgpoints = None
         self.valid_frames = None
+        self.frame_counter = None
 
     def try_load_intrinsic(self) -> bool:
         try:
@@ -68,8 +69,12 @@ class Calibration:
         return False
 
     def calculate_intrinsic(self, frame) -> None:
-        if self.valid_frames < 10:
-            time.sleep(1)
+        if self.frame_counter < 30:
+            self.frame_counter += 1
+            return 
+
+        elif self.valid_frames < 10:
+            self.frame_counter = 0
             self.logger.info("Show checkerboard for intrinsic calibration: %s/10." % self.valid_frames)
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             ret, corners = cv2.findChessboardCorners(frame, (10, 7), None)  # Checkerboard 11x8 (23mmx23mm) each
@@ -100,6 +105,7 @@ class Calibration:
         self.objpoints = []  # 3d point in real world space
         self.imgpoints = []  # 2d points in image plane.
         self.valid_frames = 0
+        self.frame_counter = 0
         self.logger.info("Starting INTRINSIC calibration.")
 
     def save_intrinsic(self) -> None:
