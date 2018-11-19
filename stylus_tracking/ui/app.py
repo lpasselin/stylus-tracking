@@ -22,7 +22,7 @@ class App:
         self.logger = logger
 
         self.camera_canvas = tk.Canvas(window, width=VideoCapture.WIDTH, height=VideoCapture.HEIGHT)
-        self.camera_canvas.pack(anchor=tk.W)
+        self.camera_canvas.pack()
 
         # self.paper_canvas = tk.Canvas(window, width=self.controller.video_capture.WIDTH,
         #                               height=self.controller.video_capture.HEIGHT)
@@ -30,11 +30,17 @@ class App:
 
         self.calibrate_intrinsic_button = tk.Button(
             window, text="Calibrate intrinsic", command=self.controller.start_intrinsic_calibration)
-        self.calibrate_intrinsic_button.pack()
+        self.calibrate_intrinsic_button.pack(in_=window)
 
-        self.calibrate_intrinsic_button = tk.Button(
+        self.load_previous_intrinsic_parameters_button = tk.Button(
+            window,
+            text="Load previous intrinsic parameters",
+            command=self.controller.try_load_previous_intrinsic_calibration_parameters)
+        self.load_previous_intrinsic_parameters_button.pack(in_=window)
+
+        self.calibrate_extrinsic_button = tk.Button(
             window, text="Calculate extrinsic from intrinsic parameters", command=self.controller.calculate_extrinsic)
-        self.calibrate_intrinsic_button.pack()
+        self.calibrate_extrinsic_button.pack(in_=window)
 
         self.current_image = None
 

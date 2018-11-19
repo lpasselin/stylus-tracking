@@ -36,6 +36,10 @@ class Controller:
 
     def calculate_extrinsic(self) -> None:
         if self.state is not State.CALIBRATED_INTRINSIC:
-            self.logger.info("Intrinsic calibration should be done prior to extrinsic.")
+            self.logger.info("Intrinsic calibration should be performed prior to extrinsic.")
         else:
             self.state = State.CALIBRATING_EXTRINSIC
+
+    def try_load_previous_intrinsic_calibration_parameters(self) -> None:
+        if self.calibration.try_load_intrinsic():
+            self.state = State.CALIBRATED_INTRINSIC

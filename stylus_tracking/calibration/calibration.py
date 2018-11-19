@@ -34,7 +34,6 @@ class Calibration:
         self.rvecs = None
         self.tvecs = None
         self.intrinsic_parameters = None
-        self.try_load_intrinsic()
         self.state = State.RAW
 
         self.criteria = None
@@ -46,7 +45,7 @@ class Calibration:
 
     def try_load_intrinsic(self) -> bool:
         try:
-            self.logger.info("Trying to retrieve last intrisic calibration parameters.")
+            self.logger.info("Trying to retrieve last intrinsic calibration parameters.")
             self.intrinsic_parameters = np.load(self.INTRINSIC_PARAMETERS_FILENAME)['intrinsic_parameters']
         except IOError:
             self.logger.info("Could not load previous intrinsic parameters.")
@@ -87,7 +86,11 @@ class Calibration:
                 self.objpoints.append(self.objp)
                 self.imgpoints.append(corners2)
         if self.valid_frames >= 10:
-            ret, cameraMatrix, distCoef, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, frame.shape[::-1], None, None)
+            ret, cameraMatrix, distCoef, rvecs, tvecs = cv2.calibrateCamera(self.objpoints,
+                                                                            self.imgpoints,
+                                                                            frame.shape[::-1],
+                                                                            None,
+                                                                            None)
             self.intrinsic_parameters = {
                 'cameraMatrix': cameraMatrix,
                 'distCoef': distCoef,
