@@ -1,4 +1,3 @@
-import time
 from enum import Enum, auto
 from logging import Logger
 
@@ -30,12 +29,13 @@ class Calibration:
     OBJECT_POINTS[3] = [-101.45, 133.2, 0]
 
     def __init__(self, logger: Logger):
+        self.logger = logger
+
         self.rvecs = None
         self.tvecs = None
         self.intrinsic_parameters = None
         self.try_load_intrinsic()
         self.state = State.RAW
-        self.logger = logger
 
         self.criteria = None
         self.objp = None
@@ -46,9 +46,12 @@ class Calibration:
 
     def try_load_intrinsic(self) -> bool:
         try:
+            self.logger.info("Trying to retrieve last intrisic calibration parameters.")
             self.intrinsic_parameters = np.load(self.INTRINSIC_PARAMETERS_FILENAME)['intrinsic_parameters']
         except IOError:
+            self.logger.info("Could not load previous intrinsic parameters.")
             return False
+        self.logger.info("Loaded previous intrinsic parameters.")
         return True
 
     def calculate_extrinsic(self, frame) -> bool:
@@ -68,10 +71,10 @@ class Calibration:
         self.logger.error("Extrinsic calibration could not be completed.")
         return False
 
-    def calculate_intrinsic(self, frame) -> None:
+    def calculate_intrinsic(self, frame) -> bool:
         if self.frame_counter < 30:
             self.frame_counter += 1
-            return 
+            return False
 
         elif self.valid_frames < 10:
             self.frame_counter = 0
@@ -83,7 +86,6 @@ class Calibration:
                 corners2 = cv2.cornerSubPix(frame, corners, (11, 11), (-1, -1), self.criteria)
                 self.objpoints.append(self.objp)
                 self.imgpoints.append(corners2)
-
         if self.valid_frames >= 10:
             ret, cameraMatrix, distCoef, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, frame.shape[::-1], None, None)
             self.intrinsic_parameters = {
@@ -93,6 +95,8 @@ class Calibration:
             }
             self.save_intrinsic()
             self.logger.info("Intrinsic calibration saved.")
+            return True
+        return False
 
     def start_intrinsic_calibration(self) -> None:
         # Idea: use drawing area aruco corners for intrinsic calibration?

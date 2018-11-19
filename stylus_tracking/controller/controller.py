@@ -22,17 +22,20 @@ class Controller:
         if ret:
             self.model.current_frame = frame
             if self.state is State.CALIBRATING_INTRINSIC:
-                if self.calibration.try_load_intrinsic():
+                if self.calibration.calculate_intrinsic(frame):
                     self.state = State.CALIBRATED_INTRINSIC
-                else:
-                    self.calibration.calculate_intrinsic(frame)
             if self.state is State.CALIBRATING_EXTRINSIC:
                 if self.calibration.calculate_extrinsic(self.model.current_frame):
                     self.state = State.CALIBRATED
+                else:
+                    self.state = State.CALIBRATED_INTRINSIC
 
     def start_intrinsic_calibration(self) -> None:
         self.state = State.CALIBRATING_INTRINSIC
         self.calibration.start_intrinsic_calibration()
 
     def calculate_extrinsic(self) -> None:
-        self.state = State.CALIBRATING_EXTRINSIC
+        if self.state is not State.CALIBRATED_INTRINSIC:
+            self.logger.info("Intrinsic calibration should be done prior to extrinsic.")
+        else:
+            self.state = State.CALIBRATING_EXTRINSIC
