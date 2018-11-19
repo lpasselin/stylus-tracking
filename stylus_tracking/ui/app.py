@@ -52,6 +52,6 @@ class App:
         self.controller.next_frame()
         resized_image = cv2.resize(self.controller.model.current_frame, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
         self.current_image = ImageTk.PhotoImage(image=Image.fromarray(resized_image))
-        self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
+        self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.CENTER)
 
         self.window.after(self.DELAY, self.__update)
