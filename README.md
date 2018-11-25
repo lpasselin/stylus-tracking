@@ -2,14 +2,9 @@
 
 Pen position detection using aruco markers.
 
-# Modules
 
-## Surface calibration
+### Reference aruco positions and labels:
 
-## Pen calibration
+![aruco positions and labels](res/dodecahedron_with_aruco_labels.png)
 
-## Detection
 
-## Position estimation
-
-## Display drawing
