@@ -45,6 +45,9 @@ class Detection:
             rvec = rotation.copy()
             tvec = translation.copy()
 
+            frame = aruco.drawAxis(img, self.cam_param.intrinsic_parameters['cameraMatrix'],
+                                   self.cam_param.intrinsic_parameters['distCoef'], rvec, tvec)
+
             print(rvec)
             print(tvec)
 
@@ -55,6 +58,6 @@ class Detection:
 
             # TODO return position + orientation of the stylus
 
-            return None
+            return frame
         else:
             return None
