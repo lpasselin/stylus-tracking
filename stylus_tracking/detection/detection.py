@@ -12,7 +12,19 @@ class Detection:
         self.success = False
         self.marker_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
         self.parameters = aruco.DetectorParameters_create()
-        points = []  # TODO all 4 corners for each marker
+        #                   top left   top right  bot right   bot left
+        points = [np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 0
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 1
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 2
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 3
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 4
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 5
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 6
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 7
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 8
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 9
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 10
+                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32')]  # marker 11
         ids = np.array([[0], [1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11]])
         self.board = aruco.Board_create(points, self.marker_dict, ids)
 
