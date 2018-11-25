@@ -36,8 +36,8 @@ all_aruco_points = []
 
 origin_points = np.matrix([ [-tc, -tc, 0, 1],
                             [-tc, tc, 0, 1],
-                            [tc, -tc, 0, 1],
                             [tc, tc, 0, 1],
+                            [tc, -tc, 0, 1],
 
                             [0, 0, 0, 1],]).T
 
@@ -64,7 +64,7 @@ ax.set_zlabel('z')
 for c, ps in enumerate(all_aruco_points):
     ps = np.array(ps)
     # plot lines
-    for i in [(0,1), (0, 2), (1, 3), (2, 3)]:
+    for i in [(0,1), (1, 2), (2, 3), (3, 0)]:
         ax.plot(ps[0, i], ps[1, i], ps[2, i], color='gray')
     # red dot top left
     ax.scatter(ps[0, 0], ps[1, 0], ps[2, 0], color='r')  # plot top left red
