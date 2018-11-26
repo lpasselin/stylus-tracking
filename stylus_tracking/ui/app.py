@@ -9,6 +9,7 @@ from stylus_tracking.controller.controller import Controller
 
 class App:
     DELAY = 10
+    RESIZE_FACTOR = 1
 
     def __init__(self, window: tk.Tk, window_title: str, controller: Controller, logger):
         self.window = window
@@ -21,7 +22,9 @@ class App:
 
         self.logger = logger
 
-        self.camera_canvas = tk.Canvas(window, width=VideoCapture.WIDTH, height=VideoCapture.HEIGHT)
+        self.camera_canvas = tk.Canvas(window,
+                                       width=VideoCapture.WIDTH*self.RESIZE_FACTOR,
+                                       height=VideoCapture.HEIGHT*self.RESIZE_FACTOR)
         self.camera_canvas.pack()
 
         # self.paper_canvas = tk.Canvas(window, width=self.controller.video_capture.WIDTH,
@@ -50,8 +53,9 @@ class App:
 
     def __update(self):
         self.controller.next_frame()
-        resized_image = cv2.resize(self.controller.model.current_frame, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+        resized_image = cv2.resize(self.controller.model.current_frame, None,
+                                   fx=self.RESIZE_FACTOR, fy=self.RESIZE_FACTOR, interpolation=cv2.INTER_LINEAR)
         self.current_image = ImageTk.PhotoImage(image=Image.fromarray(resized_image))
-        self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.CENTER)
+        self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
 
         self.window.after(self.DELAY, self.__update)
