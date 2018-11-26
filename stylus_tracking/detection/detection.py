@@ -13,18 +13,7 @@ class Detection:
         self.marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
         self.parameters = aruco.DetectorParameters_create()
         #                   top left   top right  bot right   bot left
-        points = [np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 0
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 1
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 2
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 3
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 4
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 5
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 6
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 7
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 8
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 9
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 10
-                  np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32')]  # marker 11
+        points = dodecahedron_aruco_points()
         ids = np.array([[0], [1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11]])
         self.board = aruco.Board_create(points, self.marker_dict, ids)
 
@@ -60,4 +49,52 @@ class Detection:
 
             return frame
         else:
-            return None
+            return img
+
+
+# TODO new file
+def rotation_around_y(d):
+    r = np.deg2rad(d)
+    return np.matrix([[np.cos(r), 0, -np.sin(r), 0], [0, 1, 0, 0], [np.sin(r), 0, np.cos(r), 0], [0, 0, 0, 1]],
+                     dtype=np.float32)
+
+
+def rotation_around_z(d):
+    r = np.deg2rad(d)
+    return np.matrix([[np.cos(r), np.sin(r), 0, 0], [-np.sin(r), np.cos(r), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+                     dtype=np.float32)
+
+
+def translation(tx, ty, tz):
+    return np.matrix([[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0, 0, 0, 1]], dtype=np.float32)
+
+
+def hom2cart(p):
+    return p[:-1] / p[-1]
+
+
+def dodecahedron_aruco_points() -> np.array:
+    radius = 25  # mm
+    tc = 25 / 3  # mm translation in x and y of corners from center of face
+    all_aruco_points = []
+    origin_points = np.matrix([ [-tc, -tc, 0, 1],[-tc, tc, 0, 1],[tc, tc, 0, 1],[tc, -tc, 0, 1]], dtype=np.float32).T
+
+    # first row
+    for i in [2, 1, 0, 4, 3]:
+        aruco_corners = rotation_around_z(72*i) * rotation_around_y(116.565) * \
+                        rotation_around_z(180) * translation(0, 0, radius) * origin_points
+        all_aruco_points.append(hom2cart(aruco_corners).T)
+    # second row
+    for i in [0, 4, 3, 2, 1]:
+        aruco_corners = rotation_around_z(72 * i) * rotation_around_y(116.565) * translation(0, 0, -radius) * rotation_around_y(180) * origin_points
+        all_aruco_points.append(hom2cart(aruco_corners).T)
+
+    # top
+    aruco_corners = translation(0, 0, radius) * origin_points
+    all_aruco_points.append(hom2cart(aruco_corners).T)
+    # bottom
+    aruco_corners = translation(0, 0, -radius) * rotation_around_y(180) * origin_points
+    all_aruco_points.append(hom2cart(aruco_corners).T)
+
+    all_aruco_points = np.array(all_aruco_points, dtype=np.float32)
+    return all_aruco_points
