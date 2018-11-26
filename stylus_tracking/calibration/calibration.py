@@ -46,7 +46,8 @@ class Calibration:
     def try_load_intrinsic(self) -> bool:
         try:
             self.logger.info("Trying to retrieve last intrinsic calibration parameters.")
-            self.intrinsic_parameters = np.load(self.INTRINSIC_PARAMETERS_FILENAME)['intrinsic_parameters']
+            self.intrinsic_parameters = np.load(self.INTRINSIC_PARAMETERS_FILENAME)['intrinsic_parameters'].item(0)
+            print(type(self.intrinsic_parameters), self.intrinsic_parameters)
         except IOError:
             self.logger.info("Could not load previous intrinsic parameters.")
             return False
