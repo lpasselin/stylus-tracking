@@ -10,7 +10,7 @@ class Detection:
     def __init__(self, cam_param: calibration):
         self.cam_param = cam_param
         self.success = False
-        self.marker_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+        self.marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
         self.parameters = aruco.DetectorParameters_create()
         #                   top left   top right  bot right   bot left
         points = [np.array([(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], 'float32'),  # marker 0
