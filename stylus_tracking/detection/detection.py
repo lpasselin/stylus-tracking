@@ -46,7 +46,7 @@ class Detection:
             tvec = translation.copy()
 
             frame = aruco.drawAxis(img, self.cam_param.intrinsic_parameters['cameraMatrix'],
-                                   self.cam_param.intrinsic_parameters['distCoef'], rvec, tvec)
+                                   self.cam_param.intrinsic_parameters['distCoef'], rvec, tvec, length=100)
 
             print(rvec)
             print(tvec)
