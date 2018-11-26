@@ -1,33 +1,45 @@
-from enum import Enum, auto
-from stylus_tracking.capture import capture
+from logging import Logger
+
 from stylus_tracking.calibration import calibration
-
-
-class State(Enum):
-    CALIBRATING_INTRINSIC = auto()
-    CALIBRATING_EXTRINSIC = auto()
-    CALIBRATED = auto()
+from stylus_tracking.calibration.calibration import State
+from stylus_tracking.capture.video_capture import VideoCapture
+from stylus_tracking.controller.model import AppModel
 
 
 class Controller:
 
-    def __init__(self):
-        self.calibration = calibration.Calibration()
+    def __init__(self, logger: Logger, video_source=0):
+        self.logger = logger
+        self.video_capture = VideoCapture(video_source)
+        self.calibration = calibration.Calibration(self.logger.getChild("Calibration"))
+        self.state = State.RAW
+
+        self.model = AppModel()
+
+    def next_frame(self) -> (bool, any):
+        ret, frame = self.video_capture.get_next_frame()
+        self.model.current_frame = frame
+        if ret:
+            self.model.current_frame = frame
+            if self.state is State.CALIBRATING_INTRINSIC:
+                if self.calibration.calculate_intrinsic(frame):
+                    self.state = State.CALIBRATED_INTRINSIC
+            if self.state is State.CALIBRATING_EXTRINSIC:
+                if self.calibration.calculate_extrinsic(self.model.current_frame):
+                    self.state = State.CALIBRATED
+                else:
+                    self.state = State.CALIBRATED_INTRINSIC
+
+    def start_intrinsic_calibration(self) -> None:
         self.state = State.CALIBRATING_INTRINSIC
+        self.calibration.start_intrinsic_calibration()
 
-    def next_frame(self):
-        frame, corners, ids = capture.next_frame_with_aruco_label()
-
-        if self.state == State.CALIBRATED:
-            pass
-
-        elif self.state == State.CALIBRATING_INTRINSIC:
-            if self.calibration.try_load_intrinsic() == False:
-                self.calibration.calculate_intrinsic()
+    def calculate_extrinsic(self) -> None:
+        if self.state is not State.CALIBRATED_INTRINSIC:
+            self.logger.info("Intrinsic calibration should be performed prior to extrinsic.")
+        else:
             self.state = State.CALIBRATING_EXTRINSIC
 
-        elif self.state == State.CALIBRATING_EXTRINSIC:
-            if self.calibration.calculate_extrinsic(corners, ids):
-                self.state = State.CALIBRATED
-
-        return frame
+    def try_load_previous_intrinsic_calibration_parameters(self) -> None:
+        if self.calibration.try_load_intrinsic():
+            self.state = State.CALIBRATED_INTRINSIC
