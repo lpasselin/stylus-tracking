@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import cv2
 from cv2 import aruco
@@ -62,6 +63,9 @@ class Detection:
             world_to_camera = camera_to_world.inverse()
 
             world_to_stylus = world_to_camera.combine(camera_to_stylus, True)
+
+            world_to_stylus.set_translation(0, 0, -PENCIL_LENGTH)
+            world_to_stylus.set_rotation(0, math.radians(116.565 / 3), 0)
 
             stylus_info = world_to_stylus.to_parameters(True)
             position_x = stylus_info[0]
