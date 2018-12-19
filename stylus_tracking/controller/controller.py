@@ -1,10 +1,12 @@
 from logging import Logger
 
+import numpy as np
+
 from stylus_tracking.calibration import calibration
 from stylus_tracking.calibration.calibration import State
-from stylus_tracking.detection import detection
 from stylus_tracking.capture.video_capture import VideoCapture
 from stylus_tracking.controller.model import AppModel
+from stylus_tracking.detection import detection
 
 
 class Controller:
@@ -34,8 +36,9 @@ class Controller:
                     self.state = State.CALIBRATED_INTRINSIC
             if self.state is State.CALIBRATED:
                 if self.detection is not None:
-                    # TODO : Do something with second tuple arg (position)
-                    self.model.current_frame, _ = self.detection.detect(frame)
+                    # Quand detect retournera des points
+                    self.model.current_frame, point = self.detection.detect(np.fliplr(frame))
+                    self.model.add_point(point)
                 else:
                     self.logger.info("Calibration should be performed prior to detection.")
 

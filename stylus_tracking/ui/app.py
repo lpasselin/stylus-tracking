@@ -1,16 +1,17 @@
 import tkinter as tk
-import numpy as np
+
 import cv2
 from PIL import ImageTk, Image
 
 from stylus_tracking.capture.video_capture import VideoCapture
 from stylus_tracking.controller.controller import Controller
+from stylus_tracking.ui.graph import Graph
 
 
 class App:
     DELAY = 10
     RESIZE_FACTOR = 1
-    COLOR = "#0F0F0F"
+    COLOR = "#e6e6e6"
 
     def __init__(self, window: tk.Tk, window_title: str, controller: Controller, logger):
         self.window = window
@@ -22,6 +23,8 @@ class App:
 
         self.controller = controller
 
+        self.current_graph = Graph(self.window, 10, 8)
+
         self.logger = logger
 
         self.camera_canvas = tk.Canvas(window,
@@ -30,14 +33,8 @@ class App:
                                        background=self.COLOR)
         self.camera_canvas.grid(row=1, column=1)
 
-        self.paper_canvas = tk.Canvas(window,
-                                      width=self.controller.video_capture.WIDTH * self.RESIZE_FACTOR,
-                                      height=self.controller.video_capture.HEIGHT * self.RESIZE_FACTOR,
-                                      background=self.COLOR)
-        self.paper_canvas.grid(row=1, column=2)
-
         self.button_canvas = tk.Canvas(window,
-                                       width=self.paper_canvas.winfo_width(),
+                                       width=self.window.winfo_width(),
                                        background=self.COLOR)
         self.button_canvas.grid(row=2, column=1, columnspan=2)
 
@@ -66,7 +63,11 @@ class App:
         self.controller.next_frame()
         resized_image = cv2.resize(self.controller.model.current_frame, None,
                                    fx=self.RESIZE_FACTOR, fy=self.RESIZE_FACTOR, interpolation=cv2.INTER_LINEAR)
-        self.current_image = ImageTk.PhotoImage(image=Image.fromarray(np.fliplr(resized_image)))
+        self.current_image = ImageTk.PhotoImage(image=Image.fromarray(resized_image))
         self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
+        self.__update_graphic()
 
         self.window.after(self.DELAY, self.__update)
+
+    def __update_graphic(self):
+        self.current_graph.update(self.controller.model.x, self.controller.model.y, self.controller.model.z)
