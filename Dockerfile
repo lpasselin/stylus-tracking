@@ -55,3 +55,7 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
 
 RUN pip install --no-cache-dir opencv-contrib-python
+RUN pip install --no-cache-dir matplotlib
+
+RUN curl -v -o Humor-Sans-1.0.ttf http://antiyawn.com/uploads/Humor-Sans-1.0.ttf
+RUN mkdir --parents /usr/local/share/fonts/; mv Humor*.ttf /usr/local/share/fonts/Humor-Sans-1.0.ttf
