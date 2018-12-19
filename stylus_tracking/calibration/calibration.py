@@ -47,7 +47,7 @@ class Calibration:
         try:
             self.logger.info("Trying to retrieve last intrinsic calibration parameters.")
             self.intrinsic_parameters = np.load(self.INTRINSIC_PARAMETERS_FILENAME)['intrinsic_parameters'].item(0)
-            print(type(self.intrinsic_parameters), self.intrinsic_parameters)
+            self.logger.debug(type(self.intrinsic_parameters), self.intrinsic_parameters)
         except IOError:
             self.logger.info("Could not load previous intrinsic parameters.")
             return False
@@ -127,9 +127,9 @@ class Calibration:
                                                                 self.ARUCO_DICT, parameters=self.ARUCO_PARAMETERS)
 
         if np.any(ids):
-            print(ids)
+            self.logger.debug(ids)
         if np.any(corners):
-            print(corners)
+            self.logger.debug(corners)
 
         img_color_labeled = aruco.drawDetectedMarkers(image, corners)
         return img_color_labeled, corners, ids

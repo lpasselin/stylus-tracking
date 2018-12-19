@@ -42,8 +42,8 @@ class Detection:
             img = aruco.drawAxis(img, self.cam_param.intrinsic_parameters['cameraMatrix'],
                                    self.cam_param.intrinsic_parameters['distCoef'], rvec, tvec, length=100)
 
-            print(rvec)
-            print(tvec)
+            #print(rvec)
+            #print(tvec)
 
             rotation_aruco, _ = cv2.Rodrigues(rvec)
             rotation_world, _ = cv2.Rodrigues(self.cam_param.rvecs)
