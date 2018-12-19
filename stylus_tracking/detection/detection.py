@@ -52,8 +52,8 @@ class Detection:
 
             pp_w = np.dot(np.linalg.inv(to_homogenous_rotation(rotation_world)), pp)
             pp_w = np.dot(np.linalg.inv(to_homogenous_translation(self.cam_param.tvecs)), pp_w)
-            pp_w = np.dot(np.linalg.inv(to_homogenous_rotation(rotation_aruco)), pp_w)
-            pp_w = np.dot(np.linalg.inv(to_homogenous_translation(tvec)), pp_w)
+            pp_w = np.dot(np.linalg(to_homogenous_rotation(rotation_aruco)), pp_w)
+            pp_w = np.dot(np.linalg(to_homogenous_translation(tvec)), pp_w)
 
             print(pp_w)
 
