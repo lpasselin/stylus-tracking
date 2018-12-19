@@ -1,5 +1,5 @@
 import tkinter as tk
-
+import numpy as np
 import cv2
 from PIL import ImageTk, Image
 
@@ -25,14 +25,14 @@ class App:
         self.logger = logger
 
         self.camera_canvas = tk.Canvas(window,
-                                       width=VideoCapture.WIDTH*self.RESIZE_FACTOR,
-                                       height=VideoCapture.HEIGHT*self.RESIZE_FACTOR,
+                                       width=VideoCapture.WIDTH * self.RESIZE_FACTOR,
+                                       height=VideoCapture.HEIGHT * self.RESIZE_FACTOR,
                                        background=self.COLOR)
         self.camera_canvas.grid(row=1, column=1)
 
         self.paper_canvas = tk.Canvas(window,
-                                      width=self.controller.video_capture.WIDTH*self.RESIZE_FACTOR,
-                                      height=self.controller.video_capture.HEIGHT*self.RESIZE_FACTOR,
+                                      width=self.controller.video_capture.WIDTH * self.RESIZE_FACTOR,
+                                      height=self.controller.video_capture.HEIGHT * self.RESIZE_FACTOR,
                                       background=self.COLOR)
         self.paper_canvas.grid(row=1, column=2)
 
@@ -66,7 +66,7 @@ class App:
         self.controller.next_frame()
         resized_image = cv2.resize(self.controller.model.current_frame, None,
                                    fx=self.RESIZE_FACTOR, fy=self.RESIZE_FACTOR, interpolation=cv2.INTER_LINEAR)
-        self.current_image = ImageTk.PhotoImage(image=Image.fromarray(resized_image))
+        self.current_image = ImageTk.PhotoImage(image=Image.fromarray(np.fliplr(resized_image)))
         self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
 
         self.window.after(self.DELAY, self.__update)
