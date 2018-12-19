@@ -39,8 +39,8 @@ class Detection:
             img = aruco.drawAxis(img, self.cam_param.intrinsic_parameters['cameraMatrix'],
                                    self.cam_param.intrinsic_parameters['distCoef'], rvec, tvec, length=100)
 
-            print(rvec)
-            print(tvec)
+            #print(rvec)
+            #print(tvec)
 
             # for now = > returns stylus position from the camera
 
