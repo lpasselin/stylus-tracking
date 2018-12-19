@@ -42,21 +42,24 @@ class Detection:
             img = aruco.drawAxis(img, self.cam_param.intrinsic_parameters['cameraMatrix'],
                                    self.cam_param.intrinsic_parameters['distCoef'], rvec, tvec, length=100)
 
-            print(rvec)
-            print(tvec)
+            #print(rvec)
+            #print(tvec)
 
-            pp = self.pencil_point
+            rotation_aruco, _ = cv2.Rodrigues(rvec)
+            rotation_world, _ = cv2.Rodrigues(self.cam_param.rvecs)
 
-            # for now = > returns stylus position from the camera
+            pp = self.pencil_tip_aruco_ref
 
-            # TODO camera_to_stylus =
-            # TODO world_to_stylus =
+            pp_w = np.dot(np.linalg.inv(to_homogenous_rotation(rotation_world)), pp)
+            pp_w = np.dot(np.linalg.inv(to_homogenous_translation(self.cam_param.tvecs)), pp_w)
+            pp_w = np.dot(np.linalg.inv(to_homogenous_rotation(rotation_aruco)), pp_w)
+            pp_w = np.dot(np.linalg.inv(to_homogenous_translation(tvec)), pp_w)
 
-            # TODO return position + orientation of the stylus
+            print(pp_w)
 
-            return img
+            return img, pp_w
         else:
-            return img
+            return img, None
 
 
 # TODO new file
@@ -71,6 +74,24 @@ def rotation_around_z(d):
     return np.matrix([[np.cos(r), np.sin(r), 0, 0], [-np.sin(r), np.cos(r), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
                      dtype=np.float32)
 
+
+def to_homogenous_position(a):
+    size = a.shape[0]
+    res = np.ones((size+1, 1))
+    res[:size, :] = a
+    return res
+
+def to_homogenous_translation(a):
+    size = a.shape[0]
+    res = np.identity(size+1)
+    res[:size,size] = a.flatten()
+    return res
+
+def to_homogenous_rotation(a):
+    size = a.shape[0]
+    res = np.identity(size+1)
+    res[:size,:size] = a
+    return res
 
 def translation(tx, ty, tz):
     return np.matrix([[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0, 0, 0, 1]], dtype=np.float32)
@@ -105,7 +126,6 @@ def dodecahedron_aruco_points() -> np.array:
 
     all_aruco_points = np.array(all_aruco_points, dtype=np.float32)
     return all_aruco_points
-
 
 def pencil_tip_from_length_mm(pencil_length):
     zero_point = np.array([[0], [0], [0], [1]])

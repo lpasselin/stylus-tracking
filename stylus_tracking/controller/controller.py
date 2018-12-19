@@ -34,7 +34,8 @@ class Controller:
                     self.state = State.CALIBRATED_INTRINSIC
             if self.state is State.CALIBRATED:
                 if self.detection is not None:
-                    self.model.current_frame = self.detection.detect(frame)
+                    # TODO : Do something with second tuple arg (position)
+                    self.model.current_frame, _ = self.detection.detect(frame)
                 else:
                     self.logger.info("Calibration should be performed prior to detection.")
 

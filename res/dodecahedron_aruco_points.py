@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 radius = 25  # mm
 tc = 25 / 3  # mm translation in x and y of corners from center of face
@@ -83,8 +82,8 @@ plt.tight_layout()
 plt.show()
 
 all_aruco_points = np.array(all_aruco_points)[:,:,0:4]
-print(all_aruco_points)
+# print(all_aruco_points)
 
 # all_aruco_points = all_aruco_points.reshape((12*3, 4))
 # np.savetxt('aruco_points.txt', all_aruco_points)
-print(all_aruco_points)
+# print(all_aruco_points)
