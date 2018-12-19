@@ -42,6 +42,7 @@ class Detection:
             print(rvec)
             print(tvec)
 
+
             # for now = > returns stylus position from the camera
 
             # TODO camera_to_stylus =
@@ -66,6 +67,17 @@ def rotation_around_z(d):
     return np.matrix([[np.cos(r), np.sin(r), 0, 0], [-np.sin(r), np.cos(r), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
                      dtype=np.float32)
 
+
+def to_homogenous(a):
+    size = a.shape[1]
+    if size == 1:
+        res = np.ones((size,1))
+        res[:size, :] = a
+    else:
+        res = np.identity(size)
+        res = np.identity(size)
+        res[:size,:size] = a
+    return res
 
 def translation(tx, ty, tz):
     return np.matrix([[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0, 0, 0, 1]], dtype=np.float32)
