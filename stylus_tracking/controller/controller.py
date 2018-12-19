@@ -37,8 +37,9 @@ class Controller:
             if self.state is State.CALIBRATED:
                 if self.detection is not None:
                     # Quand detect retournera des points
-                    self.model.current_frame, point = self.detection.detect(np.fliplr(frame))
-                    self.model.add_point(point)
+                    self.model.current_frame, point = self.detection.detect(frame)
+                    if point is not None:
+                        self.model.add_point(point)
                 else:
                     self.logger.info("Calibration should be performed prior to detection.")
 

@@ -1,6 +1,7 @@
 import tkinter as tk
 
 import cv2
+import numpy as np
 from PIL import ImageTk, Image
 
 from stylus_tracking.capture.video_capture import VideoCapture
@@ -63,7 +64,7 @@ class App:
         self.controller.next_frame()
         resized_image = cv2.resize(self.controller.model.current_frame, None,
                                    fx=self.RESIZE_FACTOR, fy=self.RESIZE_FACTOR, interpolation=cv2.INTER_LINEAR)
-        self.current_image = ImageTk.PhotoImage(image=Image.fromarray(resized_image))
+        self.current_image = ImageTk.PhotoImage(image=Image.fromarray(np.fliplr(resized_image)))
         self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
         self.__update_graphic()
 

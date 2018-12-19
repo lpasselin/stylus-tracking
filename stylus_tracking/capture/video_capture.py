@@ -2,8 +2,8 @@ import cv2
 
 
 class VideoCapture:
-    HEIGHT = 1200
-    WIDTH = 1600
+    HEIGHT = 720
+    WIDTH = 1280
 
     def __init__(self, video_source=0):
         self.video_capture = cv2.VideoCapture(video_source)
