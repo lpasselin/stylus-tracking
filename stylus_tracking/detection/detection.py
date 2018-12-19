@@ -3,6 +3,7 @@ import cv2
 from cv2 import aruco
 
 from stylus_tracking.calibration import calibration
+from stylus_tracking.detection import transform
 
 PENCIL_LENGTH = 153  # [mm] from dodecahedron center to tip of pencil.
 
@@ -45,19 +46,31 @@ class Detection:
             #print(rvec)
             #print(tvec)
 
-            rotation_aruco, _ = cv2.Rodrigues(rvec)
-            rotation_world, _ = cv2.Rodrigues(self.cam_param.rvecs)
+            camera_to_stylus = transform.Transform.from_parameters(np.asscalar(tvec[0]), np.asscalar(tvec[1]),
+                                                         np.asscalar(tvec[2]), np.asscalar(rvec[0]),
+                                                         np.asscalar(rvec[1]), np.asscalar(rvec[2]))
 
-            pp = self.pencil_tip_aruco_ref
+            # TODO return position + orientation of the stylus
 
-            pp_w = np.dot(np.linalg.inv(to_homogenous_rotation(rotation_world)), pp)
-            pp_w = np.dot(np.linalg.inv(to_homogenous_translation(self.cam_param.tvecs)), pp_w)
-            pp_w = np.dot(to_homogenous_rotation(rotation_aruco), pp_w)
-            pp_w = np.dot(to_homogenous_translation(tvec), pp_w)
+            camera_to_world = transform.Transform.from_parameters(np.asscalar(self.cam_param.tvecs[0]),
+                                                        np.asscalar(self.cam_param.tvecs[1]),
+                                                        np.asscalar(self.cam_param.tvecs[2]),
+                                                        np.asscalar(self.cam_param.rvecs[0]),
+                                                        np.asscalar(self.cam_param.rvecs[1]),
+                                                        np.asscalar(self.cam_param.rvecs[2]))
 
-            print(pp_w)
+            world_to_camera = camera_to_world.inverse()
 
-            return img, pp_w
+            world_to_stylus = world_to_camera.combine(camera_to_stylus, True)
+
+            stylus_info = world_to_stylus.to_parameters(True)
+            position_x = stylus_info[0]
+            position_y = stylus_info[1]
+            position_z = stylus_info[2]
+
+            print(position_x, position_y, position_z)
+
+            return img, (position_x, position_y, position_z, 1)
         else:
             return img, None
 
