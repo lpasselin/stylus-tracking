@@ -4,6 +4,8 @@ from cv2 import aruco
 
 from stylus_tracking.calibration import calibration
 
+PENCIL_LENGTH = 153  # [mm] from dodecahedron center to tip of pencil.
+
 
 class Detection:
 
@@ -16,6 +18,7 @@ class Detection:
         points = dodecahedron_aruco_points()
         ids = np.array([[0], [1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11]])
         self.board = aruco.Board_create(points, self.marker_dict, ids)
+        self.pencil_tip_aruco_ref = pencil_tip_from_length_mm(PENCIL_LENGTH)
 
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -42,6 +45,7 @@ class Detection:
             print(rvec)
             print(tvec)
 
+            pp = self.pencil_point
 
             # for now = > returns stylus position from the camera
 
@@ -112,3 +116,8 @@ def dodecahedron_aruco_points() -> np.array:
 
     all_aruco_points = np.array(all_aruco_points, dtype=np.float32)
     return all_aruco_points
+
+def pencil_tip_from_length_mm(pencil_length):
+    zero_point = np.array([[0], [0], [0], [1]])
+    pencil_tip = rotation_around_y(116.565 / 3) * translation(0, 0, -pencil_length) * zero_point
+    return pencil_tip
