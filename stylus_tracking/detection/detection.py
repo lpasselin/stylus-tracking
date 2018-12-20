@@ -64,7 +64,7 @@ class Detection:
 
             world_to_stylus = world_to_camera.combine(camera_to_stylus, True)
 
-            world_to_stylus.dot(self.tvec_pencil)
+            # world_to_stylus.dot(self.tvec_pencil.T)
 
             stylus_info = world_to_stylus.to_parameters(True)
             position_x = stylus_info[0]
