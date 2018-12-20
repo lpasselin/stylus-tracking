@@ -8,8 +8,6 @@ from stylus_tracking.capture.video_capture import VideoCapture
 from stylus_tracking.controller.controller import Controller
 from stylus_tracking.ui.graph import Graph
 
-from multiprocessing import Process
-
 
 class App:
     DELAY = 1
