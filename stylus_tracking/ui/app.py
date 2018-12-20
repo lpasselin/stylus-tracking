@@ -25,6 +25,11 @@ class App:
         self.controller = controller
 
         self.current_graph = Graph(self.window, 10, 8)
+        self.canvas_drawing = tk.Canvas(self.window,
+                                         width=self.controller.model.drawing.shape[1],
+                                         height=self.controller.model.drawing.shape[0],
+                                         background=self.COLOR)
+        self.canvas_drawing.grid(row=1, column=1)
 
         self.logger = logger
 
@@ -54,12 +59,16 @@ class App:
                                        fx=self.RESIZE_FACTOR, fy=self.RESIZE_FACTOR, interpolation=cv2.INTER_LINEAR)
             self.current_image = ImageTk.PhotoImage(image=Image.fromarray(np.fliplr(resized_image)))
             self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
-        self.__update_graphic()
+
+        self.current_drawing = ImageTk.PhotoImage(image=Image.fromarray(self.controller.model.drawing))
+        self.canvas_drawing.create_image(0, 0, image=self.current_drawing, anchor=tk.NW)
+        # self.__update_graphic()
         self.window.after(self.DELAY, self.__update)
 
     def __update_graphic(self):
         if self.controller.model.new_x is not None:
-            self.current_graph.update(self.controller.model.new_x, self.controller.model.new_y, self.controller.model.new_z)
+            self.current_graph.update(self.controller.model.new_x, self.controller.model.new_y,
+                                      self.controller.model.new_z)
 
     def __reset_graph(self):
         self.controller.model.reset_graph()
