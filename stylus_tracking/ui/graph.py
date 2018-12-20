@@ -19,3 +19,9 @@ class Graph:
     def update(self, x, y, z):
         self.ax.scatter(x, y, z)
         self.graph_canvas.draw()
+
+    def reset(self):
+        self.ax.clear()
+        self.ax.set_xlabel("x")
+        self.ax.set_ylabel("y")
+        self.ax.set_zlabel("z")
