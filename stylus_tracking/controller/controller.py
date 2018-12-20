@@ -10,6 +10,8 @@ from stylus_tracking.detection import detection
 
 class Controller:
 
+    BUFFER_SIZE = 3
+
     def __init__(self, logger: Logger, video_source=0):
         self.logger = logger
         self.video_capture = VideoCapture(video_source)
@@ -18,10 +20,12 @@ class Controller:
         self.detection = None
 
         self.model = AppModel()
+        self.buffer = []
 
     def next_frame(self) -> None:
         ret, frame = self.video_capture.get_next_frame()
         self.model.current_frame = frame
+        refresh = False
         if ret:
             self.model.current_frame = frame
             if self.state is State.CALIBRATING_INTRINSIC:
@@ -37,9 +41,18 @@ class Controller:
                 if self.detection is not None:
                     self.model.current_frame, point = self.detection.detect(frame)
                     if point is not None:
-                        self.model.add_point(point)
+                        self.buffer.append(point)
+                        if len(self.buffer) == self.BUFFER_SIZE:
+                            self.buffer = sorted(self.buffer)
+                            self.model.add_point(self.buffer[(self.BUFFER_SIZE-1)//2])
+                            self.buffer = []
+                            refresh = True
+                    else:
+                        sys.stdout.write('\a')
+                        sys.stdout.flush()
                 else:
                     self.logger.info("Calibration should be performed prior to detection.")
+        return refresh
 
     def start_intrinsic_calibration(self) -> None:
         self.state = State.CALIBRATING_INTRINSIC
