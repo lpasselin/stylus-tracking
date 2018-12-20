@@ -48,13 +48,14 @@ class App:
         self.window.mainloop()
 
     def __update(self):
-        self.controller.next_frame()
+        refresh = self.controller.next_frame()
         if self.camera_frame is not None:
             resized_image = cv2.resize(self.controller.model.current_frame, None,
                                        fx=self.RESIZE_FACTOR, fy=self.RESIZE_FACTOR, interpolation=cv2.INTER_LINEAR)
             self.current_image = ImageTk.PhotoImage(image=Image.fromarray(np.fliplr(resized_image)))
             self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
-        self.__update_graphic()
+        if refresh:
+            self.__update_graphic()
         self.window.after(self.DELAY, self.__update)
 
     def __update_graphic(self):
@@ -62,7 +63,8 @@ class App:
             self.current_graph.update(self.controller.model.new_x, self.controller.model.new_y, self.controller.model.new_z)
 
     def __reset_graph(self):
-        self.controller.model.reset_graph()
+        # TODO
+        pass
 
     def __calibration_child(self):
         self.camera_frame = tk.Toplevel(self.window)
