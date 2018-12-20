@@ -70,6 +70,8 @@ class App:
 
     def __calibration_child(self):
         self.camera_frame = tk.Toplevel(self.window)
+        self.camera_frame.bind('<Escape>', self.__close_camera_frame)
+        self.camera_frame.protocol('WM_DELETE_WINDOW', self.__close_camera_frame)
         self.camera_canvas = tk.Canvas(self.camera_frame,
                                        width=VideoCapture.WIDTH * self.RESIZE_FACTOR,
                                        height=VideoCapture.HEIGHT * self.RESIZE_FACTOR,
