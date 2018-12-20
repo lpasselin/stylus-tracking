@@ -19,6 +19,8 @@ def get_grid_cells_btw(p1,p2):
   dx = x2-x1
   dy = y2-y1
 
+  if x1 == x2 and y2 == y1:
+      return []
   if dx == 0: # will divide by dx later, this will cause err. Catch this case up here
     step = np.sign(dy)
     ys = np.arange(0,dy+step,step)
