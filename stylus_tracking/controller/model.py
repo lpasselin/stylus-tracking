@@ -1,5 +1,7 @@
 import numpy as np
 
+Z_GRAY_FACTOR= 4
+
 
 def remove_np_duplicates(data):
     # Perform lex sort and get sorted data
@@ -88,7 +90,7 @@ class AppModel:
 
         ix = int(x) + self.X
         iy = int(y) + self.Y
-        iz = 256 - abs(int(z))
+        iz = 256 - abs(int(z*Z_GRAY_FACTOR))
 
         self.drawing[ix, iy, :] = iz, iz, iz
         self.drawing[ix, iy + 1, :] = iz, iz, iz
