@@ -73,12 +73,14 @@ class Detection:
 
             world_to_stylus = world_to_camera.combine(camera_to_stylus, True)
 
-            # world_to_stylus.dot(self.tvec_pencil.T)
+            stylus_to_tip = transform.Transform.from_parameters(0, 0, -PENCIL_LENGTH, 0, math.radians(180 - 116.565 / 3))
 
-            stylus_info = world_to_stylus.to_parameters(True)
-            position_x = stylus_info[0]
-            position_y = stylus_info[1]
-            position_z = stylus_info[2]
+            world_to_tip = world_to_stylus.combine(stylus_to_tip, True)
+
+            tip_info = world_to_tip.to_parameters(True)
+            position_x = tip_info[0]
+            position_y = tip_info[1]
+            position_z = tip_info[2]
 
             print(position_x, position_y, position_z)
 

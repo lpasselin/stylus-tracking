@@ -29,11 +29,7 @@ class App:
         self.logger = logger
 
         self.camera_frame = None
-        self.calibration_buttons = None
-        self.calibrate_intrinsic_button = None
-        self.load_previous_intrinsic_parameters_button = None
-        self.calibrate_extrinsic_button = None
-        self.reset_extrinsic_calibration_button = None
+        self.camera_canvas = None
 
         self.reset_graph = tk.Button(self.window,
                                      text="Reset graph",
@@ -70,37 +66,39 @@ class App:
 
     def __calibration_child(self):
         self.camera_frame = tk.Toplevel(self.window)
+        self.camera_frame.bind('<Escape>', self.__close_camera_frame)
+        self.camera_frame.protocol('WM_DELETE_WINDOW', self.__close_camera_frame)
         self.camera_canvas = tk.Canvas(self.camera_frame,
                                        width=VideoCapture.WIDTH * self.RESIZE_FACTOR,
                                        height=VideoCapture.HEIGHT * self.RESIZE_FACTOR,
                                        background=self.COLOR)
 
         self.camera_canvas.grid(row=2, column=1)
-        self.calibration_buttons = tk.Canvas(self.camera_frame,
-                                             width=self.window.winfo_width(),
-                                             background=self.COLOR)
-        self.calibration_buttons.grid(row=3, column=1, columnspan=2)
-        self.calibrate_intrinsic_button = tk.Button(self.calibration_buttons,
-                                                    text="Calibrate intrinsic",
-                                                    command=self.controller.start_intrinsic_calibration)
-        self.calibrate_intrinsic_button.grid(row=1, column=1)
-        self.load_previous_intrinsic_parameters_button = tk.Button(self.calibration_buttons,
-                                                                   text="Load previous intrinsic parameters",
-                                                                   command=self.controller.try_load_previous_intrinsic_calibration_parameters)
-        self.load_previous_intrinsic_parameters_button.grid(row=2, column=1)
-        self.calibrate_extrinsic_button = tk.Button(self.calibration_buttons,
-                                                    text="Calculate extrinsic from intrinsic parameters",
-                                                    command=self.controller.calculate_extrinsic)
-        self.calibrate_extrinsic_button.grid(row=3, column=1)
-        self.reset_extrinsic_calibration_button = tk.Button(self.calibration_buttons,
-                                                            text="Reset extrinsic calibration",
-                                                            command=self.controller.reset_extrinsic_calibration)
-        self.reset_extrinsic_calibration_button.grid(row=4, column=1)
+        calibration_buttons = tk.Canvas(self.camera_frame,
+                                        width=self.window.winfo_width(),
+                                        background=self.COLOR)
+        calibration_buttons.grid(row=3, column=1, columnspan=2)
+        calibrate_intrinsic_button = tk.Button(calibration_buttons,
+                                               text="Calibrate intrinsic",
+                                               command=self.controller.start_intrinsic_calibration)
+        calibrate_intrinsic_button.grid(row=1, column=1)
+        load_previous_intrinsic_parameters_button = tk.Button(calibration_buttons,
+                                                              text="Load previous intrinsic parameters",
+                                                              command=self.controller.try_load_previous_intrinsic_calibration_parameters)
+        load_previous_intrinsic_parameters_button.grid(row=2, column=1)
+        calibrate_extrinsic_button = tk.Button(calibration_buttons,
+                                               text="Calculate extrinsic from intrinsic parameters",
+                                               command=self.controller.calculate_extrinsic)
+        calibrate_extrinsic_button.grid(row=3, column=1)
+        reset_extrinsic_calibration_button = tk.Button(calibration_buttons,
+                                                       text="Reset extrinsic calibration",
+                                                       command=self.controller.reset_extrinsic_calibration)
+        reset_extrinsic_calibration_button.grid(row=4, column=1)
 
-        self.done_button = tk.Button(self.calibration_buttons,
-                                     text="Done",
-                                     command=self.__close_camera_frame)
-        self.done_button.grid(row=5, column=1)
+        done_button = tk.Button(calibration_buttons,
+                                text="Done",
+                                command=self.__close_camera_frame)
+        done_button.grid(row=5, column=1)
 
     def __close_camera_frame(self):
         self.camera_frame.destroy()
