@@ -22,7 +22,7 @@ class Controller:
         self.model = AppModel()
         self.buffer = []
 
-    def next_frame(self) -> None:
+    def next_frame(self):
         ret, frame = self.video_capture.get_next_frame()
         self.model.current_frame = frame
         refresh = False
