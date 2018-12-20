@@ -19,7 +19,7 @@ class Controller:
 
         self.model = AppModel()
 
-    def next_frame(self) -> (bool, any):
+    def next_frame(self) -> None:
         ret, frame = self.video_capture.get_next_frame()
         self.model.current_frame = frame
         if ret:
@@ -38,9 +38,6 @@ class Controller:
                     self.model.current_frame, point = self.detection.detect(frame)
                     if point is not None:
                         self.model.add_point(point)
-                    else:
-                        sys.stdout.write('\a')
-                        sys.stdout.flush()
                 else:
                     self.logger.info("Calibration should be performed prior to detection.")
 

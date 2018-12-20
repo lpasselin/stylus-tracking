@@ -58,7 +58,8 @@ class App:
         self.window.after(self.DELAY, self.__update)
 
     def __update_graphic(self):
-        self.current_graph.update(self.controller.model.x, self.controller.model.y, self.controller.model.z)
+        if self.controller.model.new_x is not None:
+            self.current_graph.update(self.controller.model.new_x, self.controller.model.new_y, self.controller.model.new_z)
 
     def __reset_graph(self):
         self.controller.model.reset_graph()

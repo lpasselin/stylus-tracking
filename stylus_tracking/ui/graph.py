@@ -17,9 +17,5 @@ class Graph:
         self.graph_canvas.get_tk_widget().grid(row=1, column=1)
 
     def update(self, x, y, z):
-        self.ax.clear()
-        self.ax.set_xlabel("X axis")
-        self.ax.set_ylabel("Y axis")
-        self.ax.set_zlabel("Z axis")
         self.ax.scatter(x, y, z)
         self.graph_canvas.draw()
