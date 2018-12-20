@@ -44,9 +44,11 @@ class AppModel:
         iy = int(y) + self.Y
         iz = 256 - abs(int(z))
 
-        self.drawing[ix, iy, 0] = iz
-        self.drawing[ix, iy, 1] = iz
-        self.drawing[ix, iy, 2] = iz
+        self.drawing[ix, iy, :] = iz, iz, iz
+        self.drawing[ix, iy + 1, :] = iz, iz, iz
+        self.drawing[ix, iy - 1, :] = iz, iz, iz
+        self.drawing[ix + 1, iy, :] = iz, iz, iz
+        self.drawing[ix - 1, iy, :] = iz, iz, iz
 
     def __from_homogeneous_to_real(self, point):
         return [point[0] / point[3], point[1] / point[3], point[2] / point[3]]
