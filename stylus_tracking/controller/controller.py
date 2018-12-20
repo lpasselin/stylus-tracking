@@ -1,3 +1,4 @@
+import sys
 from logging import Logger
 
 from stylus_tracking.calibration import calibration
@@ -37,6 +38,9 @@ class Controller:
                     self.model.current_frame, point = self.detection.detect(frame)
                     if point is not None:
                         self.model.add_point(point)
+                    else:
+                        sys.stdout.write('\a')
+                        sys.stdout.flush()
                 else:
                     self.logger.info("Calibration should be performed prior to detection.")
 
