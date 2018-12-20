@@ -1,5 +1,7 @@
 import sys
 from logging import Logger
+from collections import deque
+import numpy as np
 
 from stylus_tracking.calibration import calibration
 from stylus_tracking.calibration.calibration import State
@@ -10,6 +12,8 @@ from stylus_tracking.detection import detection
 
 class Controller:
 
+    BUFFER_SIZE = 9
+
     def __init__(self, logger: Logger, video_source=0):
         self.logger = logger
         self.video_capture = VideoCapture(video_source)
@@ -18,10 +22,12 @@ class Controller:
         self.detection = None
 
         self.model = AppModel()
+        self.buffer = deque([], self.BUFFER_SIZE)
 
-    def next_frame(self) -> None:
+    def next_frame(self):
         ret, frame = self.video_capture.get_next_frame()
         self.model.current_frame = frame
+        refresh = False
         if ret:
             self.model.current_frame = frame
             if self.state is State.CALIBRATING_INTRINSIC:
@@ -37,9 +43,17 @@ class Controller:
                 if self.detection is not None:
                     self.model.current_frame, point = self.detection.detect(frame)
                     if point is not None:
-                        self.model.add_point(point)
+                        self.buffer.append(np.array(point))
+                        if len(self.buffer) == self.BUFFER_SIZE:
+                            vals = np.array(list(self.buffer))
+                            self.model.add_point(np.median(vals, axis=0))
+                            refresh = True
+                    else:
+                        sys.stdout.write('\a')
+                        sys.stdout.flush()
                 else:
                     self.logger.info("Calibration should be performed prior to detection.")
+        return refresh
 
     def start_intrinsic_calibration(self) -> None:
         self.state = State.CALIBRATING_INTRINSIC
