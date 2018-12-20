@@ -64,9 +64,9 @@ class Detection:
 
             world_to_stylus = world_to_camera.combine(camera_to_stylus, True)
 
-            world_to_stylus.translate(self.pencil_tip_aruco_ref[0],
-                                      self.pencil_tip_aruco_ref[1],
-                                      self.pencil_tip_aruco_ref[2])
+            translation_stylus = rotation_around_y(116.565 / 3) * translation(0, 0, -PENCIL_LENGTH)
+
+            world_to_stylus.translate(translation_stylus[0], translation_stylus[1], translation_stylus[2])
 
             stylus_info = world_to_stylus.to_parameters(True)
             position_x = stylus_info[0]
