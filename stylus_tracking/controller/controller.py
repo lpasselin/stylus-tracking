@@ -1,5 +1,7 @@
 import sys
 from logging import Logger
+from collections import deque
+import numpy as np
 
 from stylus_tracking.calibration import calibration
 from stylus_tracking.calibration.calibration import State
@@ -10,7 +12,7 @@ from stylus_tracking.detection import detection
 
 class Controller:
 
-    BUFFER_SIZE = 3
+    BUFFER_SIZE = 9
 
     def __init__(self, logger: Logger, video_source=0):
         self.logger = logger
@@ -20,7 +22,7 @@ class Controller:
         self.detection = None
 
         self.model = AppModel()
-        self.buffer = []
+        self.buffer = deque([], self.BUFFER_SIZE)
 
     def next_frame(self):
         ret, frame = self.video_capture.get_next_frame()
@@ -41,11 +43,10 @@ class Controller:
                 if self.detection is not None:
                     self.model.current_frame, point = self.detection.detect(frame)
                     if point is not None:
-                        self.buffer.append(point)
+                        self.buffer.append(np.array(point))
                         if len(self.buffer) == self.BUFFER_SIZE:
-                            self.buffer = sorted(self.buffer)
-                            self.model.add_point(self.buffer[(self.BUFFER_SIZE-1)//2])
-                            self.buffer = []
+                            vals = np.array(list(self.buffer))
+                            self.model.add_point(np.median(vals, axis=0))
                             refresh = True
                     else:
                         sys.stdout.write('\a')

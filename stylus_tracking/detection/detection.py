@@ -32,8 +32,6 @@ class Detection:
         self.world_to_camera = camera_to_world.inverse()
         tp = self.tvec_pencil
         self.stylus_to_tip = transform.Transform.from_parameters(tp[0], tp[1], tp[2], 0, 0, 0)
-        self.nb = 0
-        self.time_init = time.time()
 
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
