@@ -58,7 +58,7 @@ class Detection:
                                                          np.asscalar(tvec[2]), np.asscalar(rvec[0]),
                                                          np.asscalar(rvec[1]), np.asscalar(rvec[2]))
 
-            camera_to_stylus = camera_to_stylus.combine(stylus_to_tip, True)
+            camera_to_tip = camera_to_stylus.combine(stylus_to_tip, True)
             # TODO return position + orientation of the stylus
 
 
@@ -71,11 +71,7 @@ class Detection:
 
             world_to_camera = camera_to_world.inverse()
 
-            world_to_stylus = world_to_camera.combine(camera_to_stylus, True)
-
-            stylus_to_tip = transform.Transform.from_parameters(0, 0, -PENCIL_LENGTH, 0, math.radians(180 - 116.565 / 3))
-
-            world_to_tip = world_to_stylus.combine(stylus_to_tip, True)
+            world_to_tip = world_to_camera.combine(camera_to_tip, True)
 
             tip_info = world_to_tip.to_parameters(True)
             position_x = tip_info[0]
