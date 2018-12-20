@@ -20,7 +20,7 @@ class Detection:
         points = dodecahedron_aruco_points()
         ids = np.array([[0], [1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11]])
         self.board = aruco.Board_create(points, self.marker_dict, ids)
-        self.pencil_tip_aruco_ref = pencil_tip_from_length_mm(PENCIL_LENGTH)
+        self.tvec_pencil = pencil_tip_from_length_mm(PENCIL_LENGTH)
 
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -29,7 +29,7 @@ class Detection:
                                                                   'cameraMatrix'],
                                                               distCoeff=self.cam_param.intrinsic_parameters['distCoef'])
 
-        self.success, rotation, translation = aruco.estimatePoseBoard(corners, ids, self.board,
+        self.success, rotation, translation_ = aruco.estimatePoseBoard(corners, ids, self.board,
                                                                       self.cam_param.intrinsic_parameters[
                                                                           'cameraMatrix'],
                                                                       self.cam_param.intrinsic_parameters[
@@ -37,7 +37,7 @@ class Detection:
 
         if self.success:
             rvec = rotation.copy()
-            tvec = translation.copy()
+            tvec = translation_.copy()
 
             img = aruco.drawDetectedMarkers(img, corners, ids)
 
@@ -64,9 +64,8 @@ class Detection:
 
             world_to_stylus = world_to_camera.combine(camera_to_stylus, True)
 
-            translation_stylus = rotation_around_y(116.565 / 3) * translation(0, 0, -PENCIL_LENGTH)
 
-            world_to_stylus.translate(translation_stylus[0], translation_stylus[1], translation_stylus[2])
+            # world_to_stylus.translate(translation_stylus[0], translation_stylus[1], translation_stylus[2])
 
             stylus_info = world_to_stylus.to_parameters(True)
             position_x = stylus_info[0]
