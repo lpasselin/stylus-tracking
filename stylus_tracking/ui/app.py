@@ -8,9 +8,11 @@ from stylus_tracking.capture.video_capture import VideoCapture
 from stylus_tracking.controller.controller import Controller
 from stylus_tracking.ui.graph import Graph
 
+from multiprocessing import Process
+
 
 class App:
-    DELAY = 10
+    DELAY = 1
     RESIZE_FACTOR = 1
     COLOR = "#e6e6e6"
 
@@ -55,7 +57,6 @@ class App:
             self.current_image = ImageTk.PhotoImage(image=Image.fromarray(np.fliplr(resized_image)))
             self.camera_canvas.create_image(0, 0, image=self.current_image, anchor=tk.NW)
         self.__update_graphic()
-
         self.window.after(self.DELAY, self.__update)
 
     def __update_graphic(self):
