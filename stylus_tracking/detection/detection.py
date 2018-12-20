@@ -24,6 +24,10 @@ class Detection:
 
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+
+
+
         corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
                                                               cameraMatrix=self.cam_param.intrinsic_parameters[
                                                                   'cameraMatrix'],
@@ -46,12 +50,17 @@ class Detection:
 
             #print(rvec)
             #print(tvec)
+            
+            tp = self.tvec_pencil
+            stylus_to_tip = transform.Transform.from_parameters(tp[0], tp[1], tp[2], 0, 0, 0)
 
             camera_to_stylus = transform.Transform.from_parameters(np.asscalar(tvec[0]), np.asscalar(tvec[1]),
                                                          np.asscalar(tvec[2]), np.asscalar(rvec[0]),
                                                          np.asscalar(rvec[1]), np.asscalar(rvec[2]))
 
+            camera_to_stylus = camera_to_stylus.combine(stylus_to_tip, True)
             # TODO return position + orientation of the stylus
+
 
             camera_to_world = transform.Transform.from_parameters(np.asscalar(self.cam_param.tvecs[0]),
                                                         np.asscalar(self.cam_param.tvecs[1]),
