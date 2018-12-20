@@ -71,7 +71,8 @@ class App:
                                       self.controller.model.new_z)
 
     def __reset_graph(self):
-        self.current_graph.reset()
+        # self.current_graph.reset()
+        self.controller.model.reset_graph()
 
     def __calibration_child(self):
         self.camera_frame = tk.Toplevel(self.window)

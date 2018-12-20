@@ -52,7 +52,7 @@ class AppModel:
         self.x = []
         self.y = []
         self.z = []
-        self.drawing = np.zeros([self.X * 2 + 2, self.Y * 2 + 2, 3], dtype=np.uint8)
+        self.reset_graph()
         self.last_x = None
         self.last_y = None
         self.last_z = None
@@ -105,3 +105,4 @@ class AppModel:
         self.x = []
         self.y = []
         self.z = []
+        self.drawing = np.zeros([self.X * 2 + 2, self.Y * 2 + 2, 3], dtype=np.uint8)
