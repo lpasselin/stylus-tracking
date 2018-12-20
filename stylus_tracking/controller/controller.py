@@ -1,7 +1,5 @@
 from logging import Logger
 
-import numpy as np
-
 from stylus_tracking.calibration import calibration
 from stylus_tracking.calibration.calibration import State
 from stylus_tracking.capture.video_capture import VideoCapture
@@ -36,7 +34,6 @@ class Controller:
                     self.state = State.CALIBRATED_INTRINSIC
             if self.state is State.CALIBRATED:
                 if self.detection is not None:
-                    # Quand detect retournera des points
                     self.model.current_frame, point = self.detection.detect(frame)
                     if point is not None:
                         self.model.add_point(point)
@@ -49,10 +46,13 @@ class Controller:
 
     def calculate_extrinsic(self) -> None:
         if self.state is not State.CALIBRATED_INTRINSIC:
-            self.logger.info("Intrinsic calibration should be performed prior to extrinsic.")
+            self.logger.info("Intrinsic calibration should be performed prior to the extrinsic one.")
         else:
             self.state = State.CALIBRATING_EXTRINSIC
 
     def try_load_previous_intrinsic_calibration_parameters(self) -> None:
         if self.calibration.try_load_intrinsic():
             self.state = State.CALIBRATED_INTRINSIC
+
+    def reset_extrinsic_calibration(self) -> None:
+        self.state = State.CALIBRATING_EXTRINSIC

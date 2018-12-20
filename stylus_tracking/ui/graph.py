@@ -14,7 +14,7 @@ class Graph:
         self.ax.set_ylabel("y")
         self.ax.set_zlabel("z")
         self.ax.mouse_init()
-        self.graph_canvas.get_tk_widget().grid(row=1, column=2)
+        self.graph_canvas.get_tk_widget().grid(row=1, column=1)
 
     def update(self, x, y, z):
         self.ax.clear()

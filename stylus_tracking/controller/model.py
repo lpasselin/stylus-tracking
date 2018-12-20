@@ -2,7 +2,6 @@ class AppModel:
     def __init__(self):
         self.current_frame = None
         self.graph = None
-        self.points = []
         self.x = []
         self.y = []
         self.z = []
@@ -15,3 +14,8 @@ class AppModel:
 
     def __from_homogeneous_to_real(self, point):
         return [point[0] / point[3], point[1] / point[3], point[2] / point[3]]
+
+    def reset_graph(self):
+        self.x = []
+        self.y = []
+        self.z = []
