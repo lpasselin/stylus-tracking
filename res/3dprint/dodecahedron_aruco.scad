@@ -7,8 +7,8 @@ white_cube_face_height = 2;
 radius = diameter/2;
 cw = radius/9;
 /////////////////////////// cli variables
-dodecahedron_export = 0;
-aruco_export_all = 0;
+dodecahedron_export = 1;
+aruco_export_all = 1;
 aruco_number = 0;
 color_to_export = 0;
 
@@ -185,7 +185,7 @@ if (dodecahedron_export==1){
 }
 
 
-else if (aruco_export_all==1) {
+if (aruco_export_all==1) {
     translate([diameter, -(diameter*2), -radius + (aruco_data_height/2)])
     for(i = [0:11]) {
         if (i<5) {
